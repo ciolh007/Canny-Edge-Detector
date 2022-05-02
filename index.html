@@ -1,0 +1,405 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Canny Edge Detector</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/ntnuerc.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+        <script src="https://daybrush.com/scenejs/release/latest/dist/scene.min.js"></script>
+		
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+        <script src="js/ntnu.js"></script>
+    </head>
+    <body>
+        <div class="reveal">
+        <div class="slides">
+            
+<section id="first" data-state="first">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1> Canny Edge Detector</h1>
+
+   <div class="author" style="text-align:center;">
+    
+<p>
+      Jacky Baltes<br>
+      National Taiwan Normal University<br>
+      Taipei, Taiwan<br>
+      <a href="mailto:jacky.baltes@ntnu.edu.tw">jacky.baltes@ntnu.edu.tw</a><br>
+</p>
+
+   </div>
+   <div class="date">
+    02 May 2022
+   </div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-75f4ac5e-54ef-4616-9cf1-07ba91eb53cb" ><span id="id-75f4ac5e-54ef-4616-9cf1-07ba91eb53cb"><img id="img-id-75f4ac5e-54ef-4616-9cf1-07ba91eb53cb"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-42736375-1909-41ec-9062-0cce8ae96d25" ><span id="id-42736375-1909-41ec-9062-0cce8ae96d25"><img id="img-id-42736375-1909-41ec-9062-0cce8ae96d25" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00003_frag_00001" data-state="slide_00003_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+<div class="jb-input jb-render jb-code" style="text-align:center">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-input-code jb-render">
+<div class="highlight" style="background: #f8f8f8; color:#101010;display=inline-block;"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">matplotlib.pyplot</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">plt</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">numpy</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">np</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">math</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">random</span>
+
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">cv2</span>
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">skimage</span> <span style="color: #008000; font-weight: bold">import</span> io
+</pre></div>
+
+</div><!-- end of jb-input-code jb-render -->
+
+</div>
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-1b2f8b30-d522-4fc2-810b-9b162719207f" ><span id="id-1b2f8b30-d522-4fc2-810b-9b162719207f"><img id="img-id-1b2f8b30-d522-4fc2-810b-9b162719207f"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-edb17b46-4e9f-4022-8488-d12b3dfe00cd" ><span id="id-edb17b46-4e9f-4022-8488-d12b3dfe00cd"><img id="img-id-edb17b46-4e9f-4022-8488-d12b3dfe00cd" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00004_frag_00001" data-state="slide_00004_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Canny Edge Detector</h1>
+
+<div class="jb-text">
+<p>Popular general purpose edge detector</p>
+<p>Based on Sobel operators (runs Sobel_X and Sobel_Y first)</p>
+<p>Hysteresis function: </p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-d145edfa-046b-4208-afea-9183a730c936" ><span id="id-d145edfa-046b-4208-afea-9183a730c936"><img id="img-id-d145edfa-046b-4208-afea-9183a730c936"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-874e5207-6c82-4c2c-99c1-f33862a2ebb9" ><span id="id-874e5207-6c82-4c2c-99c1-f33862a2ebb9"><img id="img-id-874e5207-6c82-4c2c-99c1-f33862a2ebb9" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00005_frag_00001" data-state="slide_00005_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Hysteresis Function</h1>
+
+<div class="jb-text">
+<p>Develop a robot that follows you through the airport and carries your bag</p>
+<p>You want the robot to follow closely, but not too closely 1 m  distance</p>
+<code>
+<pre>
+if ( distance_to_person > 1 m ):
+  move_forward()
+elif ( distance_to_person < 1m ):
+  move_backward()
+else:
+  stop()
+</pre>
+</code>
+<p>This algorithm will have the robot oscillate between <code>move_forward</code> 
+and <code>move_backward</code> continuously, because changes that we are at exactly 1m are 
+extremely slim</p>
+<p>To solve this problem, we can use a hysteresis function (dead zone): zone where 
+we are not allowed to switch our control (to avoid oscillation)</p>
+<p>
+<code>
+<pre>
+if ( dist > 1.05 m ):  # high
+  cmd = move_forward()
+elif ( dist < 0.95 m): # low
+  cmd = move_backward()
+else: # between high and low
+  if ( dist < 1 m ) and ( prev_cmd == move_backward ):
+    cmd = move_backward()
+  elif ( dist > 1 m ) and ( prev_cmd == move_forward ):
+    cmd = move_forward()
+  else:
+    stop() 
+prev_cmd = cmd
+</pre>
+</code>
+</p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-8db2a0bf-840f-4b98-b0c1-0bd430b754c5" ><span id="id-8db2a0bf-840f-4b98-b0c1-0bd430b754c5"><img id="img-id-8db2a0bf-840f-4b98-b0c1-0bd430b754c5"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-4eb5d245-650e-428c-8610-dbe0ba4492a5" ><span id="id-4eb5d245-650e-428c-8610-dbe0ba4492a5"><img id="img-id-4eb5d245-650e-428c-8610-dbe0ba4492a5" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00006_frag_00001" data-state="slide_00006_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Canny Edge Detector</h1>
+
+<div class="jb-text">
+<p>Popular general purpose edge detector</p>
+<p>Based on Sobel operators (runs Sobel_X and Sobel_Y first)</p>
+<p>Hysteresis function:</p>
+<code>
+<pre>
+if Sobel(pixel) > high:
+  pixel = EDGE
+elif Sobel(pixel) < low:
+  pixel = NON_EDGE
+else:
+  if Neighbor(Pixel) == Edge:
+    pixel = EDGE 
+  else:
+    pixel = NON_EDGE
+</pre>
+</code>
+<p>Non-maxima suppression: suppress neighbours that have non-maxima Sobel response to
+avoid multiple edge pixels for an edge (common problem of first order operators)</p>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-34f45dc5-ef23-4767-825d-92ae58bf00e0" ><span id="id-34f45dc5-ef23-4767-825d-92ae58bf00e0"><img id="img-id-34f45dc5-ef23-4767-825d-92ae58bf00e0"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-0eac7f83-2a31-4faa-acc9-7f14373cae0f" ><span id="id-0eac7f83-2a31-4faa-acc9-7f14373cae0f"><img id="img-id-0eac7f83-2a31-4faa-acc9-7f14373cae0f" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+        </div>
+        </div>
+
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info about config & dependencies:
+            // - https://github.com/hakimel/reveal.js#configuration
+            // - https://github.com/hakimel/reveal.js#dependencies
+            Reveal.initialize({
+                math: {
+                    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+                    config: 'TeX-AMS_HTML-full',  // See http://docs.mathjax.org/en/latest/config-files.html
+                    // tex2jax: {
+                    //     inlineMath: [['$', '$'], ['\(', '\)']],
+                    //     displayMath: [['$$', '$$'], ['\[', '\]']],
+                    //     processEscapes: true,
+                    //     processEnvironments: true,
+                    //     skipTags: ['script', 'noscript', 'style', 'textarea', 'code', 'pre'],
+                    //     displayAlign: 'center',
+                    // }                
+                },
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/math/math.js', async: true }
+                ]
+            });
+        </script>
+
+        <script>
+            <!-- Assets -->
+var assets = {
+"robbi" : new JBImage( "robbi", "12677", "162", "138", null, null, "assets/images/robbi", "png" ),
+"logo" : new JBImage( "logo", "12033", "0", "0", null, null, "assets/images/logo", "png" ),
+"fira-logo-1" : new JBImage( "fira-logo-1", "93836", "0", "0", null, null, "assets/images/FIRA-logo-1", "png" ),
+"pairLogo" : new JBImage( "pairLogo", "63051", "0", "0", null, null, "assets/images/pairLogo", "png" ),
+"bird1" : new JBImage( "bird1", "3457266", "0", "0", null, null, "assets/images/bird1", "svg" ) 
+};
+var assetInstances = {
+    "id-42736375-1909-41ec-9062-0cce8ae96d25": assets["robbi"],
+    "id-edb17b46-4e9f-4022-8488-d12b3dfe00cd": assets["robbi"],
+    "id-874e5207-6c82-4c2c-99c1-f33862a2ebb9": assets["robbi"],
+    "id-4eb5d245-650e-428c-8610-dbe0ba4492a5": assets["robbi"],
+    "id-0eac7f83-2a31-4faa-acc9-7f14373cae0f": assets["robbi"],
+    "id-75f4ac5e-54ef-4616-9cf1-07ba91eb53cb": assets["logo"],
+    "id-1b2f8b30-d522-4fc2-810b-9b162719207f": assets["logo"],
+    "id-d145edfa-046b-4208-afea-9183a730c936": assets["logo"],
+    "id-8db2a0bf-840f-4b98-b0c1-0bd430b754c5": assets["logo"],
+    "id-34f45dc5-ef23-4767-825d-92ae58bf00e0": assets["logo"]
+};
+<!-- End of Assets -->
+
+            convertURLs(assetInstances, "smart-path");
+        </script>
+        <script>
+            <!-- Characters -->
+var characters =
+{};
+<!-- End of Characters -->
+
+        </script>
+    </body>
+</html>
